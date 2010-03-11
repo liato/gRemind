@@ -30,6 +30,7 @@ gcal.ProgrammaticLogin()
 dateparser = pdt.Calendar()
 
 title = raw_input('Remind me to: ')
+title = title.decode(sys.stdout.encoding or 'utf-8', 'replace')
 when = raw_input('In: ')
 start_time = dateparser.parse(when, time.gmtime())[0]
 end_time = time.gmtime(calendar.timegm(start_time)+60)
