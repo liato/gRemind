@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 try:
   from xml.etree import ElementTree # for Python 2.5 users
 except ImportError:
