@@ -15,7 +15,7 @@ Usage
 -----
 
 1. Copy config.py.example to config.py and enter your username and password.
-2. python gremind.py eat pizza in 2h 30m or python gremind.py -i for interactive mode
+2. ``python gremind.py eat pizza in 2h 30m`` or ``python gremind.py -i`` for interactive mode
 3. \????
 4. Get an SMS reminder from Google.
 
