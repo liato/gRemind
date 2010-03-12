@@ -73,7 +73,12 @@ gcal.email = username
 gcal.password = password
 gcal.source = 'gRemind'
 prnt('Logging in as %s' % username, True)
-gcal.ProgrammaticLogin()
+try:
+    gcal.ProgrammaticLogin()
+except gdata.service.BadAuthentication, e:
+    prnt(e, target=sys.stderr)
+    sys.exit(1)
+
 dateparser = pdt.Calendar()
 
 start_time = dateparser.parse(when, time.gmtime())[0]
@@ -86,32 +91,24 @@ local_time = time.asctime(dateparser.parse(when)[0])
 event = gdata.calendar.CalendarEventEntry()
 event.title = atom.Title(text=title)
 event.when.append(gdata.calendar.When(start_time=start_time, end_time=end_time))
-prnt('Creating reminder event', True)
-event = gcal.InsertEvent(event, '/calendar/feeds/default/private/full')
-
 r = gdata.calendar.Reminder(minutes=0)
 r.method = "sms"
 event.when[0].reminder.append(r)
 
-# Google returns gdata.service.RequestError randomly
-# saying 'Redirect received, but redirects_remaining <= 0'
-# We'll wait a few seconds and try once again.
-prnt('Setting reminder for event.', True)
+prnt('Creating reminder event.', True)
 try:
-    gcal.UpdateEvent(event.GetEditLink().href, event)
+    event = gcal.InsertEvent(event, '/calendar/feeds/default/private/full')
 except gdata.service.RequestError:
     prnt('Failed to create a reminder, retrying in %d seconds...' % RETRY_WAIT, True, sys.stderr)
     time.sleep(RETRY_WAIT)
     try:
         prnt('Attempting to set a reminder again...', True)
-        gcal.UpdateEvent(event.GetEditLink().href, event)
+        event = gcal.InsertEvent(event, '/calendar/feeds/default/private/full')
     except gdata.service.RequestError:
-        # Delete the event if the reminder wasn't set.
-        # gcal.DeleteEvent(event.GetEditLink().href)
         prnt('Unable to create a new reminder, please try again in a couple of seconds.', target=sys.stderr)
         sys.exit(1)
     else:
         prnt('Reminder created successfully.', True)
-    
+
 
 print "Google will remind you '%s' at %s" % (title, local_time)
